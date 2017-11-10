@@ -5,8 +5,8 @@ class Bot {
   constructor (token, channel) {
     this._token = token
     this._channel = channel
-    this._slackUsers = {}
-    this._slackChannels = {}
+    this._slackUsers = []
+    this._slackChannels = []
 
     this._rtm = new RtmClient(token)
     this._web = new WebClient(token)
@@ -28,11 +28,13 @@ class Bot {
     this._errorHandler = func
   }
 
-  post (text, channel = this._channel) {
+  post (text) {
     const options = { as_user: true }
-    const channelId = this._slackChannels[channel]
+    const channel = this._slackChannels.find(ch => {
+      return ch.name === this._channel
+    })
 
-    this._web.chat.postMessage(channelId, text, options, err => {
+    this._web.chat.postMessage(channel.id, text, options, err => {
       if (err) this._errorHandler(err)
     })
   }
@@ -48,12 +50,7 @@ class Bot {
       if (err) return this._errorHandler(err)
 
       debug('Fetched list of users: %O', data)
-
-      data.members.forEach(user => {
-        if (!user.is_bot) {
-          this._slackUsers[user.id] = user
-        }
-      })
+      this._slackUsers = data.members
     })
   }
 
@@ -62,10 +59,7 @@ class Bot {
       if (err) return this._errorHandler(err)
 
       debug('Fetched list of channels: %O', data)
-
-      data.channels.forEach(channel => {
-        this._slackChannels[channel.name] = channel.id
-      })
+      this._slackChannels = data.channels
     })
   }
 
@@ -76,29 +70,30 @@ class Bot {
       debug('Message: %O', message)
       this._handleMessage(message).catch(this._errorHandler)
     })
+
+    this._rtm.on(RTM_EVENTS.TEAM_JOIN, () => {
+      this._getSlackUsers()
+    })
   }
 
   async _handleMessage (message) {
-    const isUser = this._slackUsers[message.user] != null
-    const anotherChannel =
-      message.channel !== this._slackChannels[this._channel]
+    const user = this._slackUsers.find(user => user.id === message.user)
+    const channel = this._slackChannels.find(ch => ch.id === message.channel)
 
-    if (!isUser) return
     if (message.hidden) return
-    if (anotherChannel) return
+    if (!user || user.is_bot) return
+    if (!channel || channel.name !== this._channel) return
 
     const { text } = message
-    const respond = (text, channel) => {
-      this.post(text, channel)
-    }
+    const respond = text => this.post(text)
 
     for (const { rule, callback } of this._handlers) {
       if (typeof rule === 'string' && text === rule) {
-        return callback(message, respond)
+        return callback(message, respond, user, channel)
       }
 
       if (rule instanceof RegExp && rule.test(text)) {
-        return callback(message, respond)
+        return callback(message, respond, user, channel)
       }
     }
   }

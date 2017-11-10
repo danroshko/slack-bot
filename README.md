@@ -1,9 +1,9 @@
 # Slack bot
 
-Small wrapper around [node-slack-sdk](https://github.com/slackapi/node-slack-sdk) to make writing
+Wrapper around [node-slack-sdk](https://github.com/slackapi/node-slack-sdk) to make writing
 deployment bots a little bit more convenient.
 
-## Example
+## Usage
 
 ```javascript
 const token = process.env.SLACK_TOKEN
@@ -16,9 +16,13 @@ bot.on('ping', (message, respond) => {
   respond('pong')
 })
 
-bot.on(/^deploy \w+$/, async (message, respond) => {
-  await doSomething(message.text)
-  respond('Done')
+bot.on(/^deploy \w+$/, async (message, respond, user, channel) => {
+  if (user.is_admin) {
+    await doSomething(message.text)
+    respond('Done')
+  } else {
+    respond('Permission denied')
+  }
 })
 
 bot.onError(err => {
