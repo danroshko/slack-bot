@@ -3,6 +3,12 @@
 Wrapper around [node-slack-sdk](https://github.com/slackapi/node-slack-sdk) to make writing
 deployment bots a little bit more convenient.
 
+## Installation
+
+```bash
+npm install danroshko/slack-bot#v0.2 --save
+```
+
 ## Usage
 
 ```javascript
