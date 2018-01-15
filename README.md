@@ -6,7 +6,7 @@ deployment bots a little bit more convenient.
 ## Installation
 
 ```bash
-npm install danroshko/slack-bot#v0.2 --save
+npm i @danroshko/slack-bot
 ```
 
 ## Usage

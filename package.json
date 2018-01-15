@@ -1,5 +1,5 @@
 {
-  "name": "slack-bot",
+  "name": "@danroshko/slack-bot",
   "version": "0.2.1",
   "main": "index.js",
   "engines": {
