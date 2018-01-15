@@ -12,26 +12,26 @@ npm install danroshko/slack-bot#v0.2 --save
 ## Usage
 
 ```javascript
-const token = process.env.SLACK_TOKEN
-const Bot = require('slack-bot')
-const channel = 'deployments'
+const token = process.env.SLACK_TOKEN;
+const Bot = require('slack-bot');
+const channel = 'deployments';
 
-const bot = new Bot(token, channel)
+const bot = new Bot(token, channel);
 
 bot.on('ping', (message, respond) => {
-  respond('pong')
-})
+  respond('pong');
+});
 
 bot.on(/^deploy \w+$/, async (message, respond, user, channel) => {
   if (user.is_admin) {
-    await doSomething(message.text)
-    respond('Done')
+    await doSomething(message.text);
+    respond('Done');
   } else {
-    respond('Permission denied')
+    respond('Permission denied');
   }
-})
+});
 
 bot.onError(err => {
-  console.error(err)
-})
+  console.error(err);
+});
 ```
