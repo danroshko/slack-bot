@@ -8,7 +8,7 @@ class Bot {
     this._slackUsers = []
     this._slackChannels = []
 
-    this._rtm = new RtmClient(token)
+    this._rtm = new RtmClient(token, { dataStore: false, useRtmConnect: true })
     this._web = new WebClient(token)
 
     this._handlers = []
@@ -34,8 +34,8 @@ class Bot {
       return ch.name === this._channel
     })
 
-    this._web.chat.postMessage(channel.id, text, options, err => {
-      if (err) this._errorHandler(err)
+    this._web.chat.postMessage(channel.id, text, options).catch(err => {
+      return this._errorHandler(err)
     })
   }
 
