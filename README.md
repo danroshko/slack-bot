@@ -12,26 +12,35 @@ npm i @danroshko/slack-bot
 ## Usage
 
 ```javascript
-const token = process.env.SLACK_TOKEN;
-const Bot = require('slack-bot');
-const channel = 'deployments';
+const token = process.env.SLACK_TOKEN
+const Bot = require('slack-bot')
+const channel = 'deployments'
 
-const bot = new Bot(token, channel);
+const bot = new Bot(token, channel)
 
-bot.on('ping', (message, respond) => {
-  respond('pong');
-});
+bot.on('ping', ctx => {
+  ctx.respond('pong')
+})
 
-bot.on(/^deploy \w+$/, async (message, respond, user, channel) => {
-  if (user.is_admin) {
-    await doSomething(message.text);
-    respond('Done');
-  } else {
-    respond('Permission denied');
-  }
-});
+bot.on(/^deploy \w+$/, async ctx => {
+  const { user, message } = ctx
+  ctx.assert(user.is_admin, 'Permission denied')
+
+  ctx.respond('Doing something...')
+  await doSomething(ctx.message.text)
+  ctx.respond('Done')
+})
 
 bot.onError(err => {
-  console.error(err);
-});
+  console.error(err)
+})
 ```
+
+## Context
+
+* `ctx.message` - [message event](https://api.slack.com/events/message)
+* `ctx.user` - [user object](https://api.slack.com/types/user)
+* `ctx.channel` - limited [channel object](https://api.slack.com/types/channel)
+* `ctx.respond` - function to send back a response
+* `ctx.assert` - sends back an error message if assertion fails
+* `ctx.match` - match object

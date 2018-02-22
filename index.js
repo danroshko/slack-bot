@@ -85,16 +85,31 @@ class Bot {
     if (!channel || channel.name !== this._channel) return
 
     const { text } = message
-    const respond = text => this.post(text)
 
     for (const { rule, callback } of this._handlers) {
       if (typeof rule === 'string' && text === rule) {
-        return callback(message, respond, user, channel)
+        const ctx = this.createContext(message, user, channel, [text])
+        return callback(ctx)
       }
 
       if (rule instanceof RegExp && rule.test(text)) {
-        return callback(message, respond, user, channel)
+        const ctx = this.createContext(message, user, channel, text.match(rule))
+        return callback(ctx)
       }
+    }
+  }
+
+  createContext (message, user, channel, match) {
+    const respond = text => this.post(text)
+    const assert = (value, msg) => this.assert(value, msg)
+
+    return { message, user, channel, match, respond, assert }
+  }
+
+  assert (value, message) {
+    if (!value) {
+      this.post(message)
+      throw new Error(message)
     }
   }
 }
