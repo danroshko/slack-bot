@@ -1,6 +1,6 @@
 {
   "name": "@danroshko/slack-bot",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "main": "index.js",
   "engines": {
     "node": ">=7.8"
