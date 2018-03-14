@@ -30,7 +30,7 @@ class Bot {
 
   post (text) {
     const channel = this._slackChannels.find(ch => ch.name === this._channel)
-    const message = { channel: channel.id, text }
+    const message = { channel: channel.id, text, as_user: true }
 
     this._web.chat.postMessage(message).catch(err => {
       return this._errorHandler(err)
