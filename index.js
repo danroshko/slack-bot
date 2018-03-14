@@ -1,4 +1,4 @@
-const { WebClient, RtmClient, RTM_EVENTS } = require('@slack/client')
+const { WebClient, RTMClient } = require('@slack/client')
 const debug = require('debug')('slack-bot')
 
 class Bot {
@@ -8,7 +8,7 @@ class Bot {
     this._slackUsers = []
     this._slackChannels = []
 
-    this._rtm = new RtmClient(token, { dataStore: false, useRtmConnect: true })
+    this._rtm = new RTMClient(token, { useRtmConnect: true })
     this._web = new WebClient(token)
 
     this._handlers = []
@@ -29,12 +29,10 @@ class Bot {
   }
 
   post (text) {
-    const options = { as_user: true }
-    const channel = this._slackChannels.find(ch => {
-      return ch.name === this._channel
-    })
+    const channel = this._slackChannels.find(ch => ch.name === this._channel)
+    const message = { channel: channel.id, text }
 
-    this._web.chat.postMessage(channel.id, text, options).catch(err => {
+    this._web.chat.postMessage(message).catch(err => {
       return this._errorHandler(err)
     })
   }
@@ -46,32 +44,38 @@ class Bot {
   }
 
   _getSlackUsers () {
-    this._web.users.list((err, data) => {
-      if (err) return this._errorHandler(err)
-
-      debug('Fetched list of users: %O', data)
-      this._slackUsers = data.members
-    })
+    this._web.users
+      .list()
+      .then(data => {
+        debug('Fetched list of users: %O', data)
+        this._slackUsers = data.members
+      })
+      .catch(err => {
+        return this._errorHandler(err)
+      })
   }
 
   _getSlackChannels () {
-    this._web.channels.list((err, data) => {
-      if (err) return this._errorHandler(err)
-
-      debug('Fetched list of channels: %O', data)
-      this._slackChannels = data.channels
-    })
+    this._web.channels
+      .list()
+      .then(data => {
+        debug('Fetched list of channels: %O', data)
+        this._slackChannels = data.channels
+      })
+      .catch(err => {
+        return this._errorHandler(err)
+      })
   }
 
   _start () {
-    this._rtm.start()
+    this._rtm.start(null)
 
-    this._rtm.on(RTM_EVENTS.MESSAGE, message => {
+    this._rtm.on('message', message => {
       debug('Message: %O', message)
       this._handleMessage(message).catch(this._errorHandler)
     })
 
-    this._rtm.on(RTM_EVENTS.TEAM_JOIN, () => {
+    this._rtm.on('team_join', () => {
       this._getSlackUsers()
     })
   }
