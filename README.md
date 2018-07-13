@@ -1,7 +1,7 @@
 # Slack bot
 
-Wrapper around [node-slack-sdk](https://github.com/slackapi/node-slack-sdk) to make writing
-deployment bots a little bit more convenient.
+Slack client library built on top of [node-slack-sdk](https://github.com/slackapi/node-slack-sdk).
+Provides more high-level interface for building bots with request-reply flow.
 
 ## Installation
 

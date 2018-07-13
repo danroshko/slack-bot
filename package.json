@@ -2,6 +2,7 @@
   "name": "@danroshko/slack-bot",
   "version": "0.4.3",
   "main": "index.js",
+  "types": "index.d.ts",
   "engines": {
     "node": ">=7.8"
   },
