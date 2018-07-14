@@ -1,5 +1,3 @@
-import { on } from 'cluster'
-
 export = SlackBot
 
 type ErrorHandler = (err: Error) => void
@@ -19,9 +17,9 @@ interface IContext {
   message: IMessage
   user: IUser
   channel: IChannel
+  match: string[]
   respond: (text: string) => void
   assert: (value: boolean, message: string) => void
-  match?: string[]
 }
 
 interface IMessage {
