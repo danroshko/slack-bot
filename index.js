@@ -2,7 +2,7 @@ const { WebClient, RTMClient } = require('@slack/client')
 const debug = require('debug')('slack-bot')
 
 class Bot {
-  constructor (token, channel) {
+  constructor(token, channel) {
     this._token = token
     this._channel = channel
     this._slackUsers = []
@@ -20,15 +20,15 @@ class Bot {
 
   /* public interface */
 
-  on (rule, callback) {
+  on(rule, callback) {
     this._handlers.push({ rule, callback })
   }
 
-  onError (func) {
+  onError(func) {
     this._errorHandler = func
   }
 
-  post (text) {
+  post(text) {
     const channel = this._slackChannels.find(ch => ch.name === this._channel)
     const message = { channel: channel.id, text, as_user: true }
 
@@ -39,11 +39,11 @@ class Bot {
 
   /* private methods */
 
-  _errorHandler (error) {
+  _errorHandler(error) {
     throw error
   }
 
-  _getSlackUsers () {
+  _getSlackUsers() {
     this._web.users
       .list()
       .then(data => {
@@ -55,7 +55,7 @@ class Bot {
       })
   }
 
-  _getSlackChannels () {
+  _getSlackChannels() {
     this._web.channels
       .list()
       .then(data => {
@@ -67,7 +67,7 @@ class Bot {
       })
   }
 
-  _start () {
+  _start() {
     this._rtm.start(null)
 
     this._rtm.on('message', message => {
@@ -80,7 +80,7 @@ class Bot {
     })
   }
 
-  async _handleMessage (message) {
+  async _handleMessage(message) {
     const user = this._slackUsers.find(user => user.id === message.user)
     const channel = this._slackChannels.find(ch => ch.id === message.channel)
 
@@ -103,14 +103,14 @@ class Bot {
     }
   }
 
-  createContext (message, user, channel, match) {
+  createContext(message, user, channel, match) {
     const respond = text => this.post(text)
     const assert = (value, msg) => this.assert(value, msg)
 
     return { message, user, channel, match, respond, assert }
   }
 
-  assert (value, message) {
+  assert(value, message) {
     if (!value) {
       this.post(message)
       throw new Error(message)
